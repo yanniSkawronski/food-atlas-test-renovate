@@ -1,0 +1,27 @@
+openapi: 3.0.4
+
+info:
+  title: Food Atlas
+  description: An API for geographical info about recipes
+  version: 0.1.0
+
+paths:
+  /recipes:
+    get:
+      summary: Returns a list of recipes.
+      responses:
+        "200": # status code
+          description: A JSON array of recipes names
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      description: The recipe ID.
+                    name:
+                      type: string
+                      description: The recipe name.

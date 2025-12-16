@@ -1,0 +1,46 @@
+name: food-atlas
+
+services:
+  revproxy:
+    image: traefik
+    command:
+      - "--providers.docker=true"
+      - "--entryPoints.web.address=:80"
+    labels:
+      - traefik.enable=false
+    ports:
+      - 8080:80
+    volumes:
+      - ${XDG_RUNTIME_DIR}/podman/podman.sock:/var/run/docker.sock:ro
+
+  swagger:
+    image: docker.swagger.io/swaggerapi/swagger-ui
+    volumes:
+      - ./doc/food-atlas-spec.yaml:/spec.yaml
+    environment:
+      SWAGGER_JSON: /spec.yaml
+      BASE_URL: /api
+    expose:
+      - 8080
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.swagger.rule: Host(`localhost`) && PathPrefix(`/api`)
+      traefik.http.services.swagger.loadbalancer.server.port: "8080"
+
+  api:
+    image: python
+    working_dir: /app
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.api.rule=Host(`localhost`)
+      - traefik.http.services.api.loadbalancer.server.port=8000
+    expose:
+      - 8000
+    command: python -m http.server
+    post_start:
+      - command: bash -c "echo 'recipes endpoint' > /app/recipes.html"
+        user: root
+      - command: bash -c "echo 'countries endpoint' > /app/countries.html"
+        user: root
+    
+
