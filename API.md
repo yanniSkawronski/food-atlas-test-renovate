@@ -9,6 +9,7 @@ Recipes and countries must be linked.
 - name : string
 - labels : array of string
 - time : integer
+- description : string
 
 ### Country
 - id : string (following one of the ISO country code type)
@@ -32,6 +33,7 @@ Request body will consist of a JSON containing the following fields :
 - `name` : the name of the recipe
 - `labels` : the labels we want to give to the recipe
 - `time` : time needed to prepare the dish
+- `description` : the description of the recipe
 
 #### Response
 
@@ -40,6 +42,7 @@ Response is a JSON containing the following fields :
 - `name` : the name of the recipe
 - `labels` : the list of ingredients needed
 - `time` : time needed to prepare the dish
+- `description` : description of the recipe
 
 #### Status codes
 
@@ -70,6 +73,7 @@ A JSON array with the following fields :
 - `name` : name of the recipe
 - `labels` : labels of the recipe
 - `time` : preparation time of recipe
+- `description` : description of the recipe
 
 #### Status codes
 
@@ -97,6 +101,7 @@ Response is a JSON containing the following fields :
 - `name` : the name of the recipe
 - `labels` : the labels of the recipe
 - `time` : time needed to prepare the recipe
+- `description` : description of the recipe
 
 #### Status codes
 
@@ -107,7 +112,7 @@ Response is a JSON containing the following fields :
 ### Update a recipe
 
 ```
-PUT /recipes/{id}
+PATCH /recipes/{id}
 ```
 
 Update the requested recipe with the values given in body request.
@@ -217,6 +222,7 @@ The response is a JSON containing the following fields :
 
 - `id` : the identifier of the country
 - `name` : the name of the country
+- `recipes_ids` : the ids of the recipes linked to the country
 
 #### Status codes
 
@@ -226,12 +232,14 @@ The response is a JSON containing the following fields :
 ### Update a country
 
 ```
-PUT /countries/{id}
+PATCH /countries/{id}
 ```
 
 #### Request
 
-The request path must contain the id of the country we want to update
+The request path must contain the id of the country we want to update. The request body must contain a JSON with the following fields :
+- `name` : the name of the country
+- `recipesIds` : the ids of the recipes
 
 #### Response
 
@@ -267,7 +275,7 @@ No response body
 ### Get all the recipes from a country
 
 ```
-/countries/{countryId}/recipes
+GET /countries/{countryId}/recipes
 ```
 
 #### Request
@@ -277,8 +285,6 @@ The request path must contain the id of the country we want the recipes from.
 #### Response
 
 The response body contains a JSON array with the following fields :
-
-Response is a JSON containing the following fields :
 - `id` : identifier of the recipe
 - `name` : the name of the recipe
 - `labels` : the list of ingredients needed
@@ -293,7 +299,7 @@ Response is a JSON containing the following fields :
 ### Link a recipe to a country
 
 ```
-PUT /countries/{countryId}/recipes
+POST /countries/{countryId}/recipes
 ```
 
 Link some recipes to a country.
@@ -315,7 +321,7 @@ None.
 - `404` (Not Found) : Either the country or one of the recipes are not found.
 
 
-### Delete all the recipes linked to a country
+### Delete the link between a recipe and a country
 
 ```
 DELETE /countries/{id}/recipes
@@ -323,7 +329,9 @@ DELETE /countries/{id}/recipes
 
 #### Request
 
-The request path must contain the id of the country we want to delete the recipes from.
+The request path must contain the id of the country we want to delete recipes. The path parameter must contain the following field :
+
+- `recipesIds` : The list of ids associated to the recipe we want to link to the country.
 
 #### Response
 
