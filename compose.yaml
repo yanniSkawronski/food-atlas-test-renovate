@@ -21,7 +21,7 @@ services:
       - --providers.docker.exposedbydefault=false
       - --providers.docker.network=traefik_network
 
-      - --entryPoints.web.address=:80
+      - --entryPoints.http.address=:80
       - --entrypoints.https.address=:443
 
       # We redirect all HTTP traffic to HTTPS
@@ -51,10 +51,10 @@ services:
     networks:
       - traefik_network
     ports:
-      - 8080:80
-      - 8443:443
+      - 80:80
+      - 443:443
     volumes:
-      - ${XDG_RUNTIME_DIR}/podman/podman.sock:/var/run/docker.sock:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./letsencrypt:/letsencrypt
 
   swagger:
