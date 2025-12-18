@@ -306,7 +306,7 @@ Link some recipes to a country.
 
 #### Request
 
-The request path must contain the id of the country we want to add recipes. The path parameter must contain the following field :
+The request path must contain the id of the country we want to add recipes. The query parameter must contain the following field :
 
 - `recipesIds` : The list of ids associated to the recipe we want to link to the country.
 
