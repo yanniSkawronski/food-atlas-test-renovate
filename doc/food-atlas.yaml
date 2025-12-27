@@ -14,10 +14,23 @@ servers:
 paths:
   /recipes:
     get:
-      summary: Returns a list of recipes.
+      summary: Returns a list of recipes
+      parameters:
+        - in: query
+          name: max_time
+          schema:
+            type: integer
+          description: filter out all recipes taking longer than max_time
+        - in: query
+          name: labels
+          schema:
+            type: array
+            items:
+              type: string
+          description: filter for recipes containing these labels
       responses:
         "200": # status code
-          description: A JSON array of recipes names
+          description: Returns an array of recipes
           content:
             application/json:
               schema:
@@ -34,26 +47,77 @@ paths:
               $ref: "#/components/common/RecipeProperties"
       responses:
         "201":
-          description: A JSON of the newly created recipe
+          description: Recipe created
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Recipe"
         "409":
           $ref: "#/components/responses/RecipeExists"
+  /recipes/{id}:
+    get:
+      summary: get a Recipe
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          description: id of the recipe to get
+      responses:
+        "200":
+          description: Returns a single recipe
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Recipe"
+        "404":
+          $ref: "#/components/responses/RecipeNotFound"
+    patch:
+      summary: Update a Recipe
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          description: id of the recipe to update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/common/RecipeProperties"
+      responses:
+        "200":
+          description: Updated recipe
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Recipe"
+        "404":
+          $ref: "#/components/responses/RecipeNotFound"
+    delete:
+      summary: Delete a recipe
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          description: id of the recipe to delete
+      responses:
+        "204":
+          description: Recipe deleted
+        "404":
+          $ref: "#/components/responses/RecipeNotFound"
 
 components:
   responses:
     RecipeExists:
-      description: Recipe with this name already Exists
+      description: Recipe with this name already exists
+    RecipeNotFound:
+      description: Recipe not found
   common:
     RecipeProperties: # Object definition
       type: object
-      required:
-        - name
-        - labels
-        - time
-        - description
       properties:
         name:
           type: string
