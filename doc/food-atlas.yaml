@@ -3,7 +3,7 @@ openapi: 3.0.4
 info:
   title: Food Atlas
   description: An API for geographical info about recipes
-  version: 0.2.0
+  version: 0.2.1
 
 servers:
   - url: https://food-atlas.cc
@@ -29,7 +29,7 @@ paths:
               type: string
           description: filter for recipes containing these labels
       responses:
-        "200": # status code
+        "200":
           description: Returns an array of recipes
           content:
             application/json:
@@ -110,6 +110,36 @@ paths:
           description: Recipe deleted
         "404":
           $ref: "#/components/responses/RecipeNotFound"
+  /countries:
+    get:
+      summary: Get the list of countries
+      responses:
+        "200":
+          description: Returns an array of countries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Country"
+    post:
+      summary: Create a new country
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/common/CountryProperties"
+      responses:
+        "201":
+          description: Country created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Country"
+        "409":
+          $ref: "#/components/responses/CountryExists"
+    
 
 components:
   responses:
@@ -117,8 +147,10 @@ components:
       description: Recipe with this name already exists
     RecipeNotFound:
       description: Recipe not found
+    CountryExists:
+      description: Country with this name already exists
   common:
-    RecipeProperties: # Object definition
+    RecipeProperties:
       type: object
       properties:
         name:
@@ -139,7 +171,33 @@ components:
           - savory
         time: 20
         description: "Carbonara is a dish from Rome, Italy"
+    CountryProperties:
+      type: object
+      properties:
+        name:
+          type: string
+        recipes:
+          type: array
+          items:
+            type: integer
+      example:
+        name: Italy
+        recipes:
+          - 1
+          - 5
+          - 13
   schemas:
+    Country:
+      allOf:
+        - type: object
+          required:
+            - id
+          properties:
+            id:
+              type: integer
+          example:
+            id: 1
+        - $ref: "#/components/common/CountryProperties"
     Recipe:
       allOf:
         - type: object
