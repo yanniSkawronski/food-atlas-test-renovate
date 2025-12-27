@@ -137,6 +137,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Country"
+        "400":
+          description: "Invalid recipes supplied"
         "409":
           $ref: "#/components/responses/CountryExists"
   /countries/{id}:
@@ -178,6 +180,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Country"
+        "400":
+          description: "Invalid recipes supplied"
         "404":
           $ref: "#/components/responses/CountryNotFound"
         "409":
@@ -230,6 +234,8 @@ paths:
               schema:
                 type: integer
               example: 2
+        "400":
+          description: "Invalid recipes supplied"
         "404":
           $ref: "#/components/responses/CountryNotFound"
     delete:
