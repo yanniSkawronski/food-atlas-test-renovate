@@ -202,6 +202,12 @@ paths:
   /countries/{id}/recipes:
     get:
       summary: Get a list of recipes from a country
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          description: id of the country
       responses:
         "200":
           description: "Returns an array of recipes"
@@ -215,6 +221,12 @@ paths:
           $ref: "#/components/responses/CountryNotFound"
     post:
       summary: Link a list of recipes by id to a country
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          description: id of the country
       requestBody:
         required: true
         content:
@@ -240,6 +252,12 @@ paths:
           $ref: "#/components/responses/CountryNotFound"
     delete:
       summary: Unlink a list of recipes from a country
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          description: id of the country
       requestBody:
         required: true
         content:
