@@ -37,6 +37,7 @@ public class RecipeRepository {
         return recipes.stream().filter(predicate).collect(Collectors.toList());
     }
 
+    @Locked
     public Recipe getOneById(int recipeId) {
         for(Recipe recipe: recipes) {
             if(recipe.getId() == recipeId) {
@@ -46,6 +47,7 @@ public class RecipeRepository {
         throw new NotFoundResponse("Recipe with id " + recipeId + " not found");
     }
 
+    @Locked
      public void newRecipe(Recipe recipe) {
         for(Recipe r : recipes) {
             if(recipe.getName().equals(r.getName())) {
@@ -84,6 +86,7 @@ public class RecipeRepository {
         return false;
     }
 
+    @Locked
     public boolean existsById(int recipeId) {
         for(Recipe recipe: recipes) {
             if(recipe.getId() == recipeId) return true;

@@ -6,6 +6,7 @@ import io.javalin.http.BadRequestResponse;
 import io.javalin.http.ConflictResponse;
 import io.javalin.http.NotFoundResponse;
 import io.javalin.http.NotModifiedResponse;
+import lombok.Locked;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -21,6 +22,7 @@ public class CountryRepository {
         this.recipeRepository = recipeRepository;
     }
 
+    @Locked
     public Country newCountry(Country country) {
         for(Country c : countries){
             if(c.getCode().equals(country.getCode()) || c.getName().equals(country.getName())){
@@ -31,10 +33,12 @@ public class CountryRepository {
         return country;
     }
 
+    @Locked
     public List<Country> getAllCountries() {
         return List.copyOf(countries);
     }
 
+    @Locked
     public Country getCountryByCode(String countryCode) {
         for (Country country : countries) {
             if(country.getCode().equals(countryCode)) return country;
@@ -42,6 +46,7 @@ public class CountryRepository {
         throw new NotFoundResponse("Country with code " + countryCode + " not found");
     }
 
+    @Locked
     public void updateCountry(String countryCode, Country newValues) {
         Country country = getCountryByCode(countryCode);
         for(Country c : countries){
@@ -60,6 +65,7 @@ public class CountryRepository {
         }
     }
 
+    @Locked
     public void deleteCountry(String countryCode) {
         Country country = getCountryByCode(countryCode);
         if(country.getRecipes() != null && !country.getRecipes().isEmpty()) {
@@ -68,6 +74,7 @@ public class CountryRepository {
         countries.remove(country);
     }
 
+    @Locked
     public List<Recipe> getRecipesFromCountry(String countryCode) {
         Country country = getCountryByCode(countryCode);
 
@@ -79,6 +86,7 @@ public class CountryRepository {
         return recipes;
     }
 
+    @Locked
     public void linkRecipesToCountry(String countryCode, List<Integer> recipeIds) {
         Country country = getCountryByCode(countryCode);
 
@@ -90,12 +98,14 @@ public class CountryRepository {
         }
     }
 
+    @Locked
     public void dissociateRecipesFromCountry(String countryCode) {
         Country country = getCountryByCode(countryCode);
 
         country.setRecipes(new HashSet<>());
     }
 
+    @Locked
     public boolean isRecipeLinkedToCountry(Integer recipeId) {
         for(Country country : countries) {
             for(Integer storedId : country.getRecipes()) {
