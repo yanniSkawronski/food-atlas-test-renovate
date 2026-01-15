@@ -8,7 +8,7 @@ info:
 servers:
   - url: https://food-atlas.cc
     description: Main (production) server
-  - url: http://localhost:8080
+  - url: http://localhost
     description: Local staging server
 
 paths:
