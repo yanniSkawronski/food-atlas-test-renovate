@@ -10,10 +10,10 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import lombok.Locked;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class CountryRepository {
-  private final List<Country> countries = new ArrayList<>();
+  private final ConcurrentHashMap<String, Country> countries = new ConcurrentHashMap<>();
 
   private final RecipeRepository recipeRepository;
 
@@ -21,95 +21,94 @@ public class CountryRepository {
     this.recipeRepository = recipeRepository;
   }
 
-  @Locked
   public Country newCountry(Country country) {
-    for (Country c : countries) {
-      if (c.getCode().equals(country.getCode()) || c.getName().equals(country.getName())) {
+    for (String code : countries.keySet()) {
+      if (code.equals(country.code()) || countries.get(code).name().equals(country.name())) {
         throw new ConflictResponse();
       }
     }
-    countries.add(country);
+    countries.put(country.code(), country);
     return country;
   }
 
-  @Locked
   public List<Country> getAllCountries() {
-    return List.copyOf(countries);
+    return countries.values().stream().toList();
   }
 
-  @Locked
   public Country getCountryByCode(String countryCode) {
-    for (Country country : countries) {
-      if (country.getCode().equals(countryCode)) return country;
-    }
-    throw new NotFoundResponse("Country with code " + countryCode + " not found");
+    Country country = countries.get(countryCode);
+    if (country == null) throw new NotFoundResponse();
+    return country;
   }
 
-  @Locked
   public void updateCountry(String countryCode, Country newValues) {
-    Country country = getCountryByCode(countryCode);
-    for (Country c : countries) {
-      if (!c.equals(country)
-          && (c.getCode().equals(country.getCode()) || c.getName().equals(country.getName()))) {
+    Country oldCountry = getCountryByCode(countryCode);
+    for (String code : countries.keySet()) {
+      if (!countries.get(code).equals(oldCountry)
+          && (code.equals(newValues.code())
+              || countries.get(code).name().equals(newValues.name()))) {
         throw new ConflictResponse();
       }
     }
-    if (country.getName() != null && !country.getName().isEmpty()) {
-      country.setName(newValues.getName());
-    }
-    if (country.getRecipes() != null && !country.getRecipes().isEmpty()) {
-      for (int recipeId : country.getRecipes()) {
-        if (!recipeRepository.existsById(recipeId))
-          throw new BadRequestResponse("Recipe with id " + recipeId + " not found");
+    String nameEntry = newValues.name();
+    Set<Integer> recipesEntry = newValues.recipes();
+    for (Integer recipeId : recipesEntry) {
+      if (!recipeRepository.existsById(recipeId)) {
+        throw new BadRequestResponse();
       }
-      country.setRecipes(Set.copyOf(country.getRecipes()));
     }
+    Country countryToAdd =
+        new Country(
+            countryCode,
+            nameEntry != null && !nameEntry.isEmpty() ? nameEntry : oldCountry.name(),
+            !recipesEntry.isEmpty() ? recipesEntry : oldCountry.recipes());
+
+    countries.put(countryCode, countryToAdd);
   }
 
-  @Locked
   public void deleteCountry(String countryCode) {
     Country country = getCountryByCode(countryCode);
-    if (country.getRecipes() != null && !country.getRecipes().isEmpty()) {
+    if (country.recipes() != null && !country.recipes().isEmpty()) {
       throw new NotModifiedResponse("The country queried is linked to at least one recipe");
     }
-    countries.remove(country);
+    countries.remove(countryCode);
   }
 
-  @Locked
   public List<Recipe> getRecipesFromCountry(String countryCode) {
     Country country = getCountryByCode(countryCode);
 
     List<Recipe> recipes = new ArrayList<>();
 
-    for (int recipeId : country.getRecipes()) {
+    for (int recipeId : country.recipes()) {
       recipes.add(recipeRepository.getOneById(recipeId));
     }
     return recipes;
   }
 
-  @Locked
   public void linkRecipesToCountry(String countryCode, List<Integer> recipeIds) {
-    Country country = getCountryByCode(countryCode);
+    Country oldCountry = getCountryByCode(countryCode);
+
+    Set<Integer> newRecipesSet = new HashSet<>(oldCountry.recipes());
 
     for (Integer recipeId : recipeIds) {
       if (!recipeRepository.existsById(recipeId)) {
         throw new NotFoundResponse("Recipe with id " + recipeId + " not found");
       }
-      country.addRecipe(recipeId);
+      newRecipesSet.add(recipeId);
     }
+    Country countryToAdd = new Country(countryCode, oldCountry.name(), newRecipesSet);
+    countries.put(countryCode, countryToAdd);
   }
 
-  @Locked
   public void dissociateRecipesFromCountry(String countryCode) {
-    Country country = getCountryByCode(countryCode);
-
-    country.setRecipes(new HashSet<>());
+    Country oldCountry = getCountryByCode(countryCode),
+        newCountry = new Country(countryCode, oldCountry.name(), new HashSet<>());
+    countries.put(countryCode, newCountry);
   }
 
-  @Locked
   public boolean isRecipeLinkedToCountry(Integer recipeId) {
-    for (Country country : countries) {
-      for (Integer storedId : country.getRecipes()) {
+    for (String code : countries.keySet()) {
+      for (Integer storedId : countries.get(code).recipes()) {
         if (storedId.equals(recipeId)) return true;
       }
     }

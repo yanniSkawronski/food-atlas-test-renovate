@@ -4,9 +4,7 @@ import ch.heigvd.entities.Recipe;
 import ch.heigvd.repositories.CountryRepository;
 import ch.heigvd.repositories.RecipeRepository;
 import io.javalin.http.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class RecipeController {
   private final RecipeRepository recipeRepository;
@@ -30,7 +28,7 @@ public class RecipeController {
   public void addRecipe(Context ctx) {
     Recipe recipe = ctx.bodyAsClass(Recipe.class);
     recipeRepository.newRecipe(recipe);
-    throw new CreatedResponse();
+    ctx.status(201);
   }
 
   public void getById(Context ctx) {
@@ -43,7 +41,6 @@ public class RecipeController {
     int id = ctx.pathParamAsClass("id", Integer.class).get();
     Recipe newRecipe = ctx.bodyAsClass(Recipe.class);
     recipeRepository.modifyRecipe(id, newRecipe);
-    throw new NoContentResponse();
   }
 
   public void deleteRecipe(Context ctx) {
@@ -52,6 +49,6 @@ public class RecipeController {
       throw new NotModifiedResponse("Recipe is linked to at least one country");
     }
     if (!recipeRepository.deleteById(id)) throw new NotFoundResponse();
-    throw new NoContentResponse();
+    ctx.status(204);
   }
 }

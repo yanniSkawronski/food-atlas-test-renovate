@@ -4,8 +4,6 @@ import ch.heigvd.entities.Country;
 import ch.heigvd.repositories.CountryRepository;
 import io.javalin.http.BadRequestResponse;
 import io.javalin.http.Context;
-import io.javalin.http.CreatedResponse;
-import io.javalin.http.NoContentResponse;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -20,11 +18,11 @@ public class CountryController {
   public void newCountry(Context ctx) {
     Country entry =
         ctx.bodyValidator(Country.class)
-            .check(country -> country.getCode() != null, "No country code given")
-            .check(country -> country.getName() != null, "No country name given")
+            .check(country -> country.code() != null, "No country code given")
+            .check(country -> country.name() != null, "No country name given")
             .get();
     ctx.json(countryRepository.newCountry(entry));
-    throw new CreatedResponse();
+    ctx.status(201);
   }
 
   public void getAllCountries(Context ctx) {
@@ -40,13 +38,13 @@ public class CountryController {
     String countryCode = ctx.pathParam("code");
     Country newEntry = ctx.bodyAsClass(Country.class);
     countryRepository.updateCountry(countryCode, newEntry);
-    throw new NoContentResponse();
+    ctx.status(204);
   }
 
   public void deleteCountry(Context ctx) {
     String countryCode = ctx.pathParam("code");
     countryRepository.deleteCountry(countryCode);
-    throw new NoContentResponse();
+    ctx.status(204);
   }
 
   public void getRecipesFromCountry(Context ctx) {
@@ -70,11 +68,11 @@ public class CountryController {
     }
 
     countryRepository.linkRecipesToCountry(countryCode, recipesIds);
-    throw new NoContentResponse();
+    ctx.status(204);
   }
 
   public void dissociateRecipesFromCountry(Context ctx) {
     countryRepository.dissociateRecipesFromCountry(ctx.pathParam("code"));
-    throw new NoContentResponse();
+    ctx.status(204);
   }
 }
