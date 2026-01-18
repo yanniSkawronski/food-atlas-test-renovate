@@ -57,24 +57,26 @@ public class RecipeRepository {
 
   public void modifyRecipe(int recipeId, Recipe entry) {
 
-    if(!recipes.containsKey(recipeId)) throw new NotFoundResponse();
+    if (!recipes.containsKey(recipeId)) throw new NotFoundResponse();
 
-    recipes.computeIfPresent(recipeId, (i, oldRecipe) -> {
-        for (Integer id : recipes.keySet()) {
+    recipes.computeIfPresent(
+        recipeId,
+        (i, oldRecipe) -> {
+          for (Integer id : recipes.keySet()) {
             if (entry.name() != null && entry.name().equals(recipes.get(id).name())) {
-                throw new ConflictResponse();
+              throw new ConflictResponse();
             }
-        }
+          }
 
-        return new Recipe(
-                oldRecipe.id(),
-                entry.name() != null ? entry.name() : oldRecipe.name(),
-                entry.time() != null ? entry.time() : oldRecipe.time(),
-                entry.description() != null ? entry.description() : oldRecipe.description(),
-                (entry.labels() != null && !entry.labels().isEmpty())
-                        ? new HashSet<>(entry.labels())
-                        : oldRecipe.labels());
-    });
+          return new Recipe(
+              oldRecipe.id(),
+              entry.name() != null ? entry.name() : oldRecipe.name(),
+              entry.time() != null ? entry.time() : oldRecipe.time(),
+              entry.description() != null ? entry.description() : oldRecipe.description(),
+              (entry.labels() != null && !entry.labels().isEmpty())
+                  ? new HashSet<>(entry.labels())
+                  : oldRecipe.labels());
+        });
   }
 
   public boolean deleteById(int recipeId) {

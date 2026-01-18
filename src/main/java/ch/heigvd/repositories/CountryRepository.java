@@ -27,7 +27,7 @@ public class CountryRepository {
         throw new ConflictResponse();
       }
     }
-     return countries.putIfAbsent(country.code(), country);
+    return countries.putIfAbsent(country.code(), country);
   }
 
   public List<Country> getAllCountries() {
@@ -35,32 +35,34 @@ public class CountryRepository {
   }
 
   public Country getCountryByCode(String countryCode) {
-      if(countries.containsKey(countryCode)) return countries.get(countryCode);
+    if (countries.containsKey(countryCode)) return countries.get(countryCode);
     throw new NotFoundResponse();
   }
 
   public void updateCountry(String countryCode, Country newValues) {
-      if(!countries.containsKey(countryCode)) throw new NotFoundResponse();
-      countries.computeIfPresent(countryCode, (k, oldCountry) -> {
+    if (!countries.containsKey(countryCode)) throw new NotFoundResponse();
+    countries.computeIfPresent(
+        countryCode,
+        (k, oldCountry) -> {
           for (String code : countries.keySet()) {
-              if (!countries.get(code).equals(oldCountry)
-                      && (code.equals(newValues.code())
-                      || countries.get(code).name().equals(newValues.name()))) {
-                  throw new ConflictResponse();
-              }
+            if (!countries.get(code).equals(oldCountry)
+                && (code.equals(newValues.code())
+                    || countries.get(code).name().equals(newValues.name()))) {
+              throw new ConflictResponse();
+            }
           }
           String nameEntry = newValues.name();
           Set<Integer> recipesEntry = newValues.recipes();
           for (Integer recipeId : recipesEntry) {
-              if (!recipeRepository.existsById(recipeId)) {
-                  throw new BadRequestResponse();
-              }
+            if (!recipeRepository.existsById(recipeId)) {
+              throw new BadRequestResponse();
+            }
           }
           return new Country(
-                          countryCode,
-                          nameEntry != null && !nameEntry.isEmpty() ? nameEntry : oldCountry.name(),
-                          !recipesEntry.isEmpty() ? recipesEntry : oldCountry.recipes());
-      });
+              countryCode,
+              nameEntry != null && !nameEntry.isEmpty() ? nameEntry : oldCountry.name(),
+              !recipesEntry.isEmpty() ? recipesEntry : oldCountry.recipes());
+        });
   }
 
   public void deleteCountry(String countryCode) {
@@ -83,34 +85,37 @@ public class CountryRepository {
   }
 
   public void linkRecipesToCountry(String countryCode, List<Integer> recipeIds) {
-    if(!countries.containsKey(countryCode)) throw new NotFoundResponse();
+    if (!countries.containsKey(countryCode)) throw new NotFoundResponse();
 
-    countries.computeIfPresent(countryCode, (k,oldCountry) -> {
-        Set<Integer> newRecipesSet = new HashSet<>(oldCountry.recipes());
+    countries.computeIfPresent(
+        countryCode,
+        (k, oldCountry) -> {
+          Set<Integer> newRecipesSet = new HashSet<>(oldCountry.recipes());
 
-        for (Integer recipeId : recipeIds) {
+          for (Integer recipeId : recipeIds) {
             if (!recipeRepository.existsById(recipeId)) {
-                throw new NotFoundResponse();
+              throw new NotFoundResponse();
             }
             newRecipesSet.add(recipeId);
-        }
-        return new Country(countryCode, oldCountry.name(), newRecipesSet);
-    });
+          }
+          return new Country(countryCode, oldCountry.name(), newRecipesSet);
+        });
   }
 
   public void dissociateRecipesFromCountry(String countryCode) {
-      if(!countries.containsKey(countryCode)) throw new NotFoundResponse();
-      countries.computeIfPresent(countryCode, (k, oldCountry) ->
-              new Country(countryCode, oldCountry.name(), new HashSet<>())
-      );
+    if (!countries.containsKey(countryCode)) throw new NotFoundResponse();
+    countries.computeIfPresent(
+        countryCode,
+        (k, oldCountry) -> new Country(countryCode, oldCountry.name(), new HashSet<>()));
   }
 
   public void dissociateRecipeFromCountries(Integer recipeId) {
-      if(!recipeRepository.existsById(recipeId)) throw new NotFoundResponse();
-      countries.forEach((countryCode, oldCountry) -> {
+    if (!recipeRepository.existsById(recipeId)) throw new NotFoundResponse();
+    countries.forEach(
+        (countryCode, oldCountry) -> {
           HashSet<Integer> newRecipesSet = new HashSet<>(oldCountry.recipes());
           newRecipesSet.remove(recipeId);
           countries.put(countryCode, new Country(countryCode, oldCountry.name(), newRecipesSet));
-      });
+        });
   }
 }

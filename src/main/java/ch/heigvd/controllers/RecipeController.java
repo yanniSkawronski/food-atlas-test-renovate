@@ -26,7 +26,8 @@ public class RecipeController {
   }
 
   public void addRecipe(Context ctx) {
-    Recipe recipe = ctx.bodyValidator(Recipe.class)
+    Recipe recipe =
+        ctx.bodyValidator(Recipe.class)
             .check(r -> r.name() != null, "Recipe name is not set")
             .check(r -> r.time() != null, "Recipe time is not set")
             .check(r -> r.description() != null, "Recipe description is not set")
