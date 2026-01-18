@@ -36,7 +36,9 @@
             </sortPom>
           </pom>
           <java>
-            <googleJavaFormat/>
+            <googleJavaFormat>
+              <version>1.28.0</version>
+            </googleJavaFormat>
             <importOrder/>
             <removeUnusedImports/>
             <formatAnnotations/>
