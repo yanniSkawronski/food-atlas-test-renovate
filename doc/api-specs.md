@@ -1,22 +1,5 @@
 # Food Atlas
 
-## Entities
-
-Recipes and countries must be linked.
-
-### Recipe
-- id : integer
-- name : string
-- labels : array of string
-- time : integer
-- description : string
-
-### Country
-- id : string (following one of the ISO country code type)
-- name : string
-- recipes : array of integers
-
-
 ## Endpoints
 
 ### Create a recipe
@@ -270,7 +253,6 @@ No response body
 #### Status codes
 
 - `204` (No content) : The request was successful
-- `304` (Not modified) : The country queried is linked to at least one recipe
 - `404` (Not found) : The country queried does not exist
 
 ### Get all the recipes from a country
@@ -330,7 +312,7 @@ DELETE /countries/{code}/recipes
 
 #### Request
 
-The request path must contain the id of the country we want to delete recipes.
+The request path must contain the id of the country we want to delete recipes. The request body is a JSON array containing the ids of the recipes we want to unlink from the country.
 
 #### Response
 
