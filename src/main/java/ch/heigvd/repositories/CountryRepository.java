@@ -98,11 +98,15 @@ public class CountryRepository {
         });
   }
 
-  public void dissociateRecipesFromCountry(String countryCode) {
+  public void dissociateRecipesFromCountry(String countryCode, List<Integer> recipeIds) {
     if (!countries.containsKey(countryCode)) throw new NotFoundResponse();
     countries.computeIfPresent(
         countryCode,
-        (k, oldCountry) -> new Country(countryCode, oldCountry.name(), new HashSet<>()));
+        (k, oldCountry) -> {
+            Set<Integer> newRecipesSet = new HashSet<>(oldCountry.recipes());
+            newRecipesSet.removeAll(recipeIds);
+          return new  Country(countryCode, oldCountry.name(), newRecipesSet);
+        });
   }
 
   public void dissociateRecipeFromCountries(Integer recipeId) {

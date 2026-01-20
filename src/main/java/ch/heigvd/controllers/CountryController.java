@@ -4,9 +4,8 @@ import ch.heigvd.entities.Country;
 import ch.heigvd.repositories.CountryRepository;
 import io.javalin.http.BadRequestResponse;
 import io.javalin.http.Context;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+
+import java.util.*;
 
 public class CountryController {
   private final CountryRepository countryRepository;
@@ -72,7 +71,14 @@ public class CountryController {
   }
 
   public void dissociateRecipesFromCountry(Context ctx) {
-    countryRepository.dissociateRecipesFromCountry(ctx.pathParam("code"));
+      String countryCode = ctx.pathParam("code");
+      Integer[] recipeIds;
+      try {
+          recipeIds = ctx.bodyValidator(Integer[].class).get();
+      } catch (Exception e) {
+          throw new BadRequestResponse();
+      }
+    countryRepository.dissociateRecipesFromCountry(countryCode, Arrays.asList(recipeIds));
     ctx.status(204);
   }
 }
