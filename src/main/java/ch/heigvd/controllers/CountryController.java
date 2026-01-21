@@ -30,8 +30,7 @@ public class CountryController {
     String countryCode = ctx.pathParam("code");
     String serverEtag = countryRepository.getCache(countryCode);
     String clientEtag = ctx.header("If-None-Match");
-    if(Objects.equals(serverEtag, clientEtag))
-      throw new NotModifiedResponse();
+    if (Objects.equals(serverEtag, clientEtag)) throw new NotModifiedResponse();
     ctx.header("ETag", serverEtag);
     ctx.json(countryRepository.getCountryByCode(countryCode));
   }
@@ -40,12 +39,10 @@ public class CountryController {
     String countryCode = ctx.pathParam("code");
     String serverEtag = countryRepository.getCache(countryCode);
     String clientEtag = ctx.header("If-Match");
-    if(!Objects.equals(serverEtag, clientEtag))
-      throw new PreconditionFailedResponse();
+    if (!Objects.equals(serverEtag, clientEtag)) throw new PreconditionFailedResponse();
     Country newEntry = ctx.bodyAsClass(Country.class);
-    countryRepository.updateCountry(countryCode, newEntry);
+    ctx.json(countryRepository.updateCountry(countryCode, newEntry));
     ctx.header("ETag", countryRepository.getCache(countryCode));
-    ctx.status(204);
   }
 
   public void deleteCountry(Context ctx) {
@@ -61,25 +58,26 @@ public class CountryController {
   public void linkRecipesToCountry(Context ctx) {
     String countryCode = ctx.pathParam("code");
 
-    List<Integer> recipesIds = new ArrayList<>();
-    String recipesIdsEntry = ctx.queryParam("recipesIds");
-    if (!recipesIdsEntry.isEmpty()) {
-      try {
-        recipesIds =
-            Arrays.stream(recipesIdsEntry.split(",")).toList().stream()
-                .map(Integer::parseInt)
-                .toList();
-      } catch (NumberFormatException e) {
-        throw new BadRequestResponse("Invalid request path parameter");
-      }
+    Integer[] recipeIds;
+    try {
+      recipeIds = ctx.bodyValidator(Integer[].class).get();
+    } catch (Exception e) {
+      throw new BadRequestResponse();
     }
 
-    countryRepository.linkRecipesToCountry(countryCode, recipesIds);
+    countryRepository.linkRecipesToCountry(countryCode, Arrays.asList(recipeIds));
     ctx.status(204);
   }
 
   public void dissociateRecipesFromCountry(Context ctx) {
-    countryRepository.dissociateRecipesFromCountry(ctx.pathParam("code"));
+    String countryCode = ctx.pathParam("code");
+    Integer[] recipeIds;
+    try {
+      recipeIds = ctx.bodyValidator(Integer[].class).get();
+    } catch (Exception e) {
+      throw new BadRequestResponse();
+    }
+    countryRepository.dissociateRecipesFromCountry(countryCode, Arrays.asList(recipeIds));
     ctx.status(204);
   }
 }

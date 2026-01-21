@@ -42,7 +42,7 @@ public class RecipeRepository {
     throw new NotFoundResponse();
   }
 
-  public void newRecipe(Recipe entry) {
+  public Recipe newRecipe(Recipe entry) {
     for (Integer id : recipes.keySet()) {
       if (entry.name().equals(recipes.get(id).name())) {
         throw new ConflictResponse();
@@ -53,9 +53,10 @@ public class RecipeRepository {
     Recipe recipeToAdd =
         new Recipe(id, entry.name(), entry.time(), entry.description(), Set.copyOf(entry.labels()));
     recipes.putIfAbsent(id, recipeToAdd);
+    return recipeToAdd;
   }
 
-  public void modifyRecipe(int recipeId, Recipe entry) {
+  public Recipe modifyRecipe(int recipeId, Recipe entry) {
 
     if (!recipes.containsKey(recipeId)) throw new NotFoundResponse();
 
@@ -77,6 +78,7 @@ public class RecipeRepository {
                   ? new HashSet<>(entry.labels())
                   : oldRecipe.labels());
         });
+    return recipes.get(recipeId);
   }
 
   public boolean deleteById(int recipeId) {

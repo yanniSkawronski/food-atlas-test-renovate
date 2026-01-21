@@ -5,7 +5,6 @@ import ch.heigvd.entities.Recipe;
 import io.javalin.http.BadRequestResponse;
 import io.javalin.http.ConflictResponse;
 import io.javalin.http.NotFoundResponse;
-import io.javalin.http.NotModifiedResponse;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -39,7 +38,7 @@ public class CountryRepository {
     throw new NotFoundResponse();
   }
 
-  public void updateCountry(String countryCode, Country newValues) {
+  public Country updateCountry(String countryCode, Country newValues) {
     if (!countries.containsKey(countryCode)) throw new NotFoundResponse();
     countries.computeIfPresent(
         countryCode,
@@ -63,13 +62,11 @@ public class CountryRepository {
               nameEntry != null && !nameEntry.isEmpty() ? nameEntry : oldCountry.name(),
               !recipesEntry.isEmpty() ? recipesEntry : oldCountry.recipes());
         });
+    return countries.get(countryCode);
   }
 
   public void deleteCountry(String countryCode) {
-    Country country = getCountryByCode(countryCode);
-    if (country.recipes() != null && !country.recipes().isEmpty()) {
-      throw new NotModifiedResponse("The country queried is linked to at least one recipe");
-    }
+    if (!countries.containsKey(countryCode)) throw new NotFoundResponse();
     countries.remove(countryCode);
   }
 
@@ -102,11 +99,15 @@ public class CountryRepository {
         });
   }
 
-  public void dissociateRecipesFromCountry(String countryCode) {
+  public void dissociateRecipesFromCountry(String countryCode, List<Integer> recipeIds) {
     if (!countries.containsKey(countryCode)) throw new NotFoundResponse();
     countries.computeIfPresent(
         countryCode,
-        (k, oldCountry) -> new Country(countryCode, oldCountry.name(), new HashSet<>()));
+        (k, oldCountry) -> {
+          Set<Integer> newRecipesSet = new HashSet<>(oldCountry.recipes());
+          newRecipesSet.removeAll(recipeIds);
+          return new Country(countryCode, oldCountry.name(), newRecipesSet);
+        });
   }
 
   public void dissociateRecipeFromCountries(Integer recipeId) {
@@ -119,7 +120,7 @@ public class CountryRepository {
         });
   }
 
-    public String getCache(String id) {
-        return Integer.toHexString(countries.get(id).hashCode());
-    }
+  public String getCache(String id) {
+    return Integer.toHexString(countries.get(id).hashCode());
+  }
 }
