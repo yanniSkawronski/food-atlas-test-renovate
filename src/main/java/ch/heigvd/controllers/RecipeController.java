@@ -32,7 +32,7 @@ public class RecipeController {
             .check(r -> r.time() != null, "Recipe time is not set")
             .check(r -> r.description() != null, "Recipe description is not set")
             .get();
-    recipeRepository.newRecipe(recipe);
+    ctx.json(recipeRepository.newRecipe(recipe));
     ctx.status(201);
   }
 
@@ -54,9 +54,8 @@ public class RecipeController {
     if(!Objects.equals(serverEtag, clientEtag))
       throw new PreconditionFailedResponse();
     Recipe newRecipe = ctx.bodyAsClass(Recipe.class);
-    recipeRepository.modifyRecipe(id, newRecipe);
+    ctx.json(recipeRepository.modifyRecipe(id, newRecipe));
     ctx.header("ETag", recipeRepository.getCache(id));
-    ctx.status(204);
   }
 
   public void deleteRecipe(Context ctx) {

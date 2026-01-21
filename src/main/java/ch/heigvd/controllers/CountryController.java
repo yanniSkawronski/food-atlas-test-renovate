@@ -43,9 +43,8 @@ public class CountryController {
     if(!Objects.equals(serverEtag, clientEtag))
       throw new PreconditionFailedResponse();
     Country newEntry = ctx.bodyAsClass(Country.class);
-    countryRepository.updateCountry(countryCode, newEntry);
+    ctx.json(countryRepository.updateCountry(countryCode, newEntry));
     ctx.header("ETag", countryRepository.getCache(countryCode));
-    ctx.status(204);
   }
 
   public void deleteCountry(Context ctx) {

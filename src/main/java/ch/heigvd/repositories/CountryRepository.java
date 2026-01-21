@@ -38,7 +38,7 @@ public class CountryRepository {
     throw new NotFoundResponse();
   }
 
-  public void updateCountry(String countryCode, Country newValues) {
+  public Country updateCountry(String countryCode, Country newValues) {
     if (!countries.containsKey(countryCode)) throw new NotFoundResponse();
     countries.computeIfPresent(
         countryCode,
@@ -62,6 +62,7 @@ public class CountryRepository {
               nameEntry != null && !nameEntry.isEmpty() ? nameEntry : oldCountry.name(),
               !recipesEntry.isEmpty() ? recipesEntry : oldCountry.recipes());
         });
+    return countries.get(countryCode);
   }
 
   public void deleteCountry(String countryCode) {
