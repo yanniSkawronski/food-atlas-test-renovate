@@ -104,9 +104,9 @@ public class CountryRepository {
     countries.computeIfPresent(
         countryCode,
         (k, oldCountry) -> {
-            Set<Integer> newRecipesSet = new HashSet<>(oldCountry.recipes());
-            newRecipesSet.removeAll(recipeIds);
-          return new  Country(countryCode, oldCountry.name(), newRecipesSet);
+          Set<Integer> newRecipesSet = new HashSet<>(oldCountry.recipes());
+          newRecipesSet.removeAll(recipeIds);
+          return new Country(countryCode, oldCountry.name(), newRecipesSet);
         });
   }
 
@@ -120,7 +120,7 @@ public class CountryRepository {
         });
   }
 
-    public String getCache(String id) {
-        return Integer.toHexString(countries.get(id).hashCode());
-    }
+  public String getCache(String id) {
+    return Integer.toHexString(countries.get(id).hashCode());
+  }
 }

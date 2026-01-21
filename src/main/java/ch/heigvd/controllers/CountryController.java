@@ -30,8 +30,7 @@ public class CountryController {
     String countryCode = ctx.pathParam("code");
     String serverEtag = countryRepository.getCache(countryCode);
     String clientEtag = ctx.header("If-None-Match");
-    if(Objects.equals(serverEtag, clientEtag))
-      throw new NotModifiedResponse();
+    if (Objects.equals(serverEtag, clientEtag)) throw new NotModifiedResponse();
     ctx.header("ETag", serverEtag);
     ctx.json(countryRepository.getCountryByCode(countryCode));
   }
@@ -40,8 +39,7 @@ public class CountryController {
     String countryCode = ctx.pathParam("code");
     String serverEtag = countryRepository.getCache(countryCode);
     String clientEtag = ctx.header("If-Match");
-    if(!Objects.equals(serverEtag, clientEtag))
-      throw new PreconditionFailedResponse();
+    if (!Objects.equals(serverEtag, clientEtag)) throw new PreconditionFailedResponse();
     Country newEntry = ctx.bodyAsClass(Country.class);
     ctx.json(countryRepository.updateCountry(countryCode, newEntry));
     ctx.header("ETag", countryRepository.getCache(countryCode));
@@ -72,13 +70,13 @@ public class CountryController {
   }
 
   public void dissociateRecipesFromCountry(Context ctx) {
-      String countryCode = ctx.pathParam("code");
-      Integer[] recipeIds;
-      try {
-          recipeIds = ctx.bodyValidator(Integer[].class).get();
-      } catch (Exception e) {
-          throw new BadRequestResponse();
-      }
+    String countryCode = ctx.pathParam("code");
+    Integer[] recipeIds;
+    try {
+      recipeIds = ctx.bodyValidator(Integer[].class).get();
+    } catch (Exception e) {
+      throw new BadRequestResponse();
+    }
     countryRepository.dissociateRecipesFromCountry(countryCode, Arrays.asList(recipeIds));
     ctx.status(204);
   }
