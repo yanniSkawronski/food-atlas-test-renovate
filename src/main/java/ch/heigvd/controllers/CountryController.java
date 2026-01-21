@@ -30,8 +30,7 @@ public class CountryController {
     String countryCode = ctx.pathParam("code");
     String serverEtag = countryRepository.getCache(countryCode);
     String clientEtag = ctx.header("If-None-Match");
-    if(Objects.equals(serverEtag, clientEtag))
-      throw new NotModifiedResponse();
+    if (Objects.equals(serverEtag, clientEtag)) throw new NotModifiedResponse();
     ctx.header("ETag", serverEtag);
     ctx.json(countryRepository.getCountryByCode(countryCode));
   }
@@ -40,8 +39,7 @@ public class CountryController {
     String countryCode = ctx.pathParam("code");
     String serverEtag = countryRepository.getCache(countryCode);
     String clientEtag = ctx.header("If-Match");
-    if(!Objects.equals(serverEtag, clientEtag))
-      throw new PreconditionFailedResponse();
+    if (!Objects.equals(serverEtag, clientEtag)) throw new PreconditionFailedResponse();
     Country newEntry = ctx.bodyAsClass(Country.class);
     countryRepository.updateCountry(countryCode, newEntry);
     ctx.header("ETag", countryRepository.getCache(countryCode));

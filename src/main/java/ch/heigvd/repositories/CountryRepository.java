@@ -119,7 +119,7 @@ public class CountryRepository {
         });
   }
 
-    public String getCache(String id) {
-        return Integer.toHexString(countries.get(id).hashCode());
-    }
+  public String getCache(String id) {
+    return Integer.toHexString(countries.get(id).hashCode());
+  }
 }
