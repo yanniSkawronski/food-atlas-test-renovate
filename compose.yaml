@@ -24,7 +24,8 @@ services:
       traefik.http.services.swagger.loadbalancer.server.port: "8080"
 
   api:
-    image: ghcr.io/yanniskawronski/food-atlas:latest
+    image: ghcr.io/julesrossier/food-atlas:latest
+    pull_policy: always
     working_dir: /app
     labels:
       traefik.enable: "true"
