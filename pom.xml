@@ -17,12 +17,12 @@
     <dependency>
       <groupId>io.javalin</groupId>
       <artifactId>javalin-bundle</artifactId>
-      <version>6.7.0</version>
+      <version>6.4.0</version>
     </dependency>
     <dependency>
       <groupId>info.picocli</groupId>
       <artifactId>picocli</artifactId>
-      <version>4.7.7</version>
+      <version>4.3.0</version>
     </dependency>
   </dependencies>
 
