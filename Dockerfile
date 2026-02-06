@@ -5,7 +5,7 @@ COPY pom.xml .
 COPY src ./src
 RUN mvn dependency:go-offline package
 
-FROM eclipse-temurin:21-jre
+FROM eclipse-temurin:25.0.2_10-jre
 WORKDIR /app
 COPY --from=build /app/target/food-atlas*.jar food-atlas.jar
 ENTRYPOINT ["java", "-jar", "food-atlas.jar"]
